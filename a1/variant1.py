@@ -5,8 +5,15 @@ import numpy as np
 def load_data():
     train_data = pd.read_csv('census+income/adult.data', sep=',', header=None)
     test_data = pd.read_csv('census+income/adult.test', sep=',', skiprows=1, header=None)
-    # train_data.loc[0] = categorical_cols
-    # test_data.loc[0] = categorical_cols
+    # set column names
+    train_data.columns =  ['age', 'workclass', 'fnlwgt', 'education', 'education-num', 'marital-status', 'occupation',
+                        'relationship', 'race', 'sex', 'capital-gain', 'capital-loss', 'hours-per-week',
+                        'native-country',
+                        'income']
+    test_data.columns =  ['age', 'workclass', 'fnlwgt', 'education', 'education-num', 'marital-status', 'occupation',
+                        'relationship', 'race', 'sex', 'capital-gain', 'capital-loss', 'hours-per-week',
+                        'native-country',
+                        'income']
 
 
     return train_data, test_data
@@ -25,24 +32,26 @@ def get_unique_label(col):
 def preprocess(train, test):
 
     label_encoders = {}
-    # categorical_cols = ['age', 'workclass', 'fnlwgt', 'education', 'education-num', 'marital-status', 'occupation',
-    #                     'relationship', 'race', 'sex', 'capital-gain', 'capital-loss', 'hours-per-week',
-    #                     'native-country',
-    #                     'income']
+    categorical_cols = ['age', 'workclass', 'fnlwgt', 'education', 'education-num', 'marital-status', 'occupation',
+                         'relationship', 'race', 'sex', 'capital-gain', 'capital-loss', 'hours-per-week',
+                         'native-country',
+                         'income']
 
-    for col in range(len(categorical_cols)):
+    for col in categorical_cols:
+        # use a numbers to represent class attributes
         label_encoders[col] = get_unique_label(train[col])
-        train[col] = train[col].map(get_unique_label[col])
-        test[col] = test[col].map(get_unique_label[col])
+        train[col] = train[col].map(label_encoders[col])
+        test[col] = test[col].map(label_encoders[col])
 
 
     train_feat = train.iloc[:, :-1]  # Training features
+
     train_label = train.iloc[:, -1]  # Training labels
 
     test_feat = test.iloc[:, :-1]  # Test features
     test_label = test.iloc[:, -1]  # Test labels
 
-    print(train_feat)
+    print(label_encoders)
 
     return train_feat, train_label, test_feat, test_label
 
@@ -50,9 +59,9 @@ def preprocess(train, test):
 
 if __name__ == "__main__":
     test_data, train_data = load_data()
-    # preprocess(test_data, train_data)
-    print(test_data.head())
-    print(train_data.head())
+    preprocess(test_data, train_data)
+    # print(test_data.head())
+    # print(train_data.head())
 
 
 
