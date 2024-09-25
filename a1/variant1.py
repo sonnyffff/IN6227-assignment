@@ -42,10 +42,7 @@ def standardize(x):
 # preprocess the datasets
 def preprocess(train, test):
     label_encoders = {}
-    categorical_cols = ['age', 'workclass', 'fnlwgt', 'education', 'education-num', 'marital-status', 'occupation',
-                        'relationship', 'race', 'sex', 'capital-gain', 'capital-loss', 'hours-per-week',
-                        'native-country',
-                        'income']
+    categorical_cols = ATTRIBUTES
 
     for col in categorical_cols:
         # use a numbers to represent class attributes
@@ -57,10 +54,12 @@ def preprocess(train, test):
 
     train_l = train.iloc[:, -1]  # Training labels
     test_f = test.iloc[:, :-1]  # Test features
+
     # use median value to replace nan numbers
     test_f = test_f.fillna(test_f.median())
     test_l = test.iloc[:, -1]  # Test labels
 
+    # standardize
     train_f = standardize(train_f)
     test_f = standardize(test_f)
 
@@ -75,7 +74,7 @@ def euclidean_distance(point1, point2):
 def manhattan_distance(p, q):
     return np.sum(np.abs(p - q))
 
-# Minkowski Distance p = 1 (Manhattan), p = euclidean
+# minkowski distance p = 1 (manhattan), p = 2 (euclidean)
 def minkowski_distance(p, q, power):
     return np.sum(np.abs(p - q) ** power) ** (1 / power)
 
@@ -92,13 +91,14 @@ class KNN:
         for i in tqdm(range(test_f.shape[0])):
             point_1 = test_f.iloc[i].values
             distances = []
+
             # random sample a fraction of training data to reduce running time
-            sample_train = self.train_feat.sample(frac=0.005, random_state=42)
+            sample_train = self.train_feat.sample(frac=0.01, random_state=42)
 
             for t in range(len(sample_train)):
                 point_2 = train_feat.iloc[t].to_numpy()
-                # d = euclidean_distance(point_1, point_2)
-                d = minkowski_distance(point_1, point_2, 1)
+                d = euclidean_distance(point_1, point_2)
+                # d = minkowski_distance(point_1, point_2, 1)
                 distances.append(d)
             k_indices = np.argsort(distances)[:self.k]
 
@@ -121,7 +121,7 @@ if __name__ == "__main__":
     train_feat, train_label, test_feat, test_label = preprocess(test_data, train_data)
 
     # build knn
-    knn = KNN(7, train_feat, train_label)
+    knn = KNN(3, train_feat, train_label)
     # make predictions
     prediction = knn.predict(test_feat)
 
