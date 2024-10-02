@@ -5,7 +5,7 @@ Created on Wed Feb 12 21:58:33 2020
 @author: shrey
 """
 import time
-def run(filePath, minSupport, minConfidence):
+def run(filePath, start_line, end_line, minSupport, minConfidence):
     filePath = filePath
     minSupport = minSupport
     minConfidence = minConfidence
@@ -22,10 +22,15 @@ def run(filePath, minSupport, minConfidence):
         lines = fp.readlines()
 
     dataset = []
+    for i, line in enumerate(lines):
+        if start_line <= i < end_line:
+            line = line.rstrip()
+            dataset.append(line.split(","))
 
-    for line in lines:
-        line = line.rstrip()
-        dataset.append(line.split(","))
+    # for line in lines:
+    #     line = line.rstrip()
+    #     dataset.append(line.split(","))
+
 
     def firstpass(dataset):
         items = {}
@@ -125,7 +130,7 @@ def run(filePath, minSupport, minConfidence):
         return associationRule
 
     TotalTransactions = len(dataset)
-    print("Total Number of Transactions in the file are {}\n".format(TotalTransactions))
+    #("Total Number of Transactions in the file are {}\n".format(TotalTransactions))
 
     def AprioriAlgorithm(rules, dataset, minSupport, minConfidence):
         returnAprioriAlgorithm = []
@@ -173,3 +178,4 @@ def run(filePath, minSupport, minConfidence):
             counter = counter + 1
 
     print("--- %s seconds ---" % (time.time() - start_time))
+    return time.time() - start_time
